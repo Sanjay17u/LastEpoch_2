@@ -7,7 +7,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   if (isLoggedIn) {
-    return <MainScreen />
+    return <MainScreen onLogout={() => setIsLoggedIn(false)} />
   }
 
   return <LoginScreen onLogin={() => setIsLoggedIn(true)} />
