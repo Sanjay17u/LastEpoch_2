@@ -1,14 +1,21 @@
 import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 function MainScreen({ onLogout }) {
+
+  const handleLogout = async () => {
+  await AsyncStorage.removeItem("isLoggedIn")
+  onLogout()
+}
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome User</Text>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={onLogout}
+        onPress={handleLogout}
       >
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>

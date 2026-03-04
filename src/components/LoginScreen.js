@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
 function LoginScreen({ onLogin }) {
@@ -10,9 +11,7 @@ function LoginScreen({ onLogin }) {
 
 
 
-
-
-  const handleLogin = () => {
+  const handleLogin = async () => {
 
   if (email === "") {
     setError("Email required")
@@ -27,6 +26,7 @@ function LoginScreen({ onLogin }) {
   setError("")
   console.log("Login success")
       
+  await AsyncStorage.setItem("isLoggedIn", "true")
   onLogin()
 }
 
