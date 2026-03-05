@@ -1,8 +1,21 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getPosts } from "../services/api"
 
 function MainScreen({ onLogout }) {
+
+  const loadPosts = async () => {
+
+  const posts = await getPosts()
+
+  console.log(posts)
+
+  }
+  
+  useEffect(() => {
+  loadPosts()
+}, [])
 
   const handleLogout = async () => {
   await AsyncStorage.removeItem("isLoggedIn")
