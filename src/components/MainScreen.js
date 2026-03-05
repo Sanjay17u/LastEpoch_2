@@ -1,35 +1,44 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { getPosts } from "../services/api"
-import { useFetch } from "../hooks/useFetch"
 
 function MainScreen({ onLogout }) {
 
-  const { data, loading, error } = useFetch(getPosts)
+  const [posts, setPosts] = useState([])
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-  console.log(data)
+  useEffect(() => {
+    loadPosts()
+  }, [])
+
+  const loadPosts = async () => {
+
+    setLoading(true)
+
+    const newPosts = await getPosts(page)
+
+    setPosts(prevPosts => [...prevPosts, ...newPosts])
+
+    setLoading(false)
+  }
+
+  const loadMore = async () => {
+
+    const nextPage = page + 1
+
+    setPage(nextPage)
+
+    const newPosts = await getPosts(nextPage)
+
+    setPosts(prevPosts => [...prevPosts, ...newPosts])
+  }
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("isLoggedIn")
     onLogout()
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Loading...</Text>
-      </View>
-    )
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>{error}</Text>
-      </View>
-    )
   }
 
   return (
@@ -38,8 +47,16 @@ function MainScreen({ onLogout }) {
       <Text style={styles.title}>Welcome User</Text>
 
       <Text style={{color:"white"}}>
-        Posts Loaded: {data.length}
+        Posts Loaded: {posts.length}
       </Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={loadMore}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>Load More</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
@@ -53,27 +70,3 @@ function MainScreen({ onLogout }) {
 }
 
 export default MainScreen
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black"
-  },
-  title: {
-    color: "white",
-    fontSize: 28,
-    marginBottom: 20
-  },
-  button: {
-    backgroundColor: "#ff4444",
-    padding: 14,
-    borderRadius: 6,
-    marginTop:20
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold"
-  }
-})
