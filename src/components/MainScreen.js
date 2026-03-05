@@ -1,30 +1,45 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+
 import { getPosts } from "../services/api"
+import { useFetch } from "../hooks/useFetch"
 
 function MainScreen({ onLogout }) {
 
-  const loadPosts = async () => {
+  const { data, loading, error } = useFetch(getPosts)
 
-  const posts = await getPosts()
-
-  console.log(posts)
-
-  }
-  
-  useEffect(() => {
-  loadPosts()
-}, [])
+  console.log(data)
 
   const handleLogout = async () => {
-  await AsyncStorage.removeItem("isLoggedIn")
-  onLogout()
-}
+    await AsyncStorage.removeItem("isLoggedIn")
+    onLogout()
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Loading...</Text>
+      </View>
+    )
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>{error}</Text>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
+
       <Text style={styles.title}>Welcome User</Text>
+
+      <Text style={{color:"white"}}>
+        Posts Loaded: {data.length}
+      </Text>
 
       <TouchableOpacity
         style={styles.button}
@@ -54,7 +69,8 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#ff4444",
     padding: 14,
-    borderRadius: 6
+    borderRadius: 6,
+    marginTop:20
   },
   buttonText: {
     color: "white",
