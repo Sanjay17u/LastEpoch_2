@@ -1,7 +1,6 @@
 import React from "react"
-import { AuthProvider, useAuth } from "./src/context/AuthContext"
-import { PostsProvider } from "./src/context/PostsContext"
-import { ThemeProvider } from "./src/context/ThemeContext"
+import { useAuth } from "./src/context/AuthContext"
+import { AppProvider } from "./src/providers/AppProvider"
 
 import LoginScreen from "./src/components/LoginScreen"
 import MainScreen from "./src/components/MainScreen"
@@ -18,12 +17,9 @@ function AppContent() {
 export default function App() {
 
   return (
-    <AuthProvider>
-      <PostsProvider>
-        <ThemeProvider>
-          <AppContent />
-        </ThemeProvider>
-      </PostsProvider>
-    </AuthProvider>
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   )
+
 }
