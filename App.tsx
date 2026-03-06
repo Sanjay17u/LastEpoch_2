@@ -1,37 +1,29 @@
-import React, { useState, useEffect } from 'react'
+import React from "react"
+import { AuthProvider, useAuth } from "./src/context/AuthContext"
+import { PostsProvider } from "./src/context/PostsContext"
+import { ThemeProvider } from "./src/context/ThemeContext"
+
 import LoginScreen from "./src/components/LoginScreen"
 import MainScreen from "./src/components/MainScreen"
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
-function App() {
+function AppContent() {
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { user, loading } = useAuth()
 
-  useEffect(() => {
-    checkLoginStatus()
-  }, [])
+  if (loading) return null
 
-  const checkLoginStatus = async () => {
-    const value = await AsyncStorage.getItem("isLoggedIn")
-
-    if (value === "true") {
-      setIsLoggedIn(true)
-    }
-
-    setLoading(false)
-  }
-
-  if (loading) {
-    return null
-  }
-
-  if (isLoggedIn) {
-    return <MainScreen onLogout={() => setIsLoggedIn(false)} />
-  }
-
-  return <LoginScreen onLogin={() => setIsLoggedIn(true)} />
-
+  return user ? <MainScreen /> : <LoginScreen />
 }
 
-export default App
+export default function App() {
+
+  return (
+    <AuthProvider>
+      <PostsProvider>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
+      </PostsProvider>
+    </AuthProvider>
+  )
+}

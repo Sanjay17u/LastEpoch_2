@@ -1,66 +1,47 @@
-import React, { useEffect, useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import React from "react"
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from "react-native"
 
-import { getPosts } from "../services/api"
+import { usePosts } from "../context/PostsContext"
+import { useAuth } from "../context/AuthContext"
+import { useTheme } from "../context/ThemeContext"
 
-function MainScreen({ onLogout }) {
+function MainScreen() {
 
-  const [posts, setPosts] = useState([])
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
+  const { posts, loadMore } = usePosts()
+  const { logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
-  useEffect(() => {
-    loadPosts()
-  }, [])
-
-  const loadPosts = async () => {
-
-    setLoading(true)
-
-    const newPosts = await getPosts(page)
-
-    setPosts(prevPosts => [...prevPosts, ...newPosts])
-
-    setLoading(false)
-  }
-
-  const loadMore = async () => {
-
-    const nextPage = page + 1
-
-    setPage(nextPage)
-
-    const newPosts = await getPosts(nextPage)
-
-    setPosts(prevPosts => [...prevPosts, ...newPosts])
-  }
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("isLoggedIn")
-    onLogout()
-  }
+  const renderItem = ({ item }) => (
+    <View style={[styles.post, { backgroundColor: theme.card }]}>
+      <Text style={{ color: theme.text }}>{item.title}</Text>
+    </View>
+  )
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      <Text style={styles.title}>Welcome User</Text>
-
-      <Text style={{color:"white"}}>
-        Posts Loaded: {posts.length}
+      <Text style={[styles.title, { color: theme.text }]}>
+        Welcome User
       </Text>
 
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+      />
+
       <TouchableOpacity
-        style={styles.button}
-        onPress={loadMore}
-        disabled={loading}
+        style={[styles.button, { backgroundColor: theme.button }]}
+        onPress={toggleTheme}
       >
-        <Text style={styles.buttonText}>Load More</Text>
+        <Text style={styles.buttonText}>Toggle Theme</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.button}
-        onPress={handleLogout}
+        style={[styles.button, { backgroundColor: theme.button }]}
+        onPress={logout}
       >
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
@@ -70,3 +51,35 @@ function MainScreen({ onLogout }) {
 }
 
 export default MainScreen
+
+const styles = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    padding: 20
+  },
+
+  title: {
+    fontSize: 24,
+    marginBottom: 10
+  },
+
+  post: {
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 6
+  },
+
+  button: {
+    padding: 14,
+    borderRadius: 6,
+    marginTop: 10
+  },
+
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold"
+  }
+
+})

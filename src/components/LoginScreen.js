@@ -1,35 +1,31 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useAuth } from "../context/AuthContext"
 
-
-function LoginScreen({ onLogin }) {
+function LoginScreen() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-
+  const { login } = useAuth()
 
   const handleLogin = async () => {
 
-  if (email === "") {
-    setError("Email required")
-    return
+    if (email === "") {
+      setError("Email required")
+      return
+    }
+
+    if (password === "") {
+      setError("Password required")
+      return
+    }
+
+    setError("")
+
+    await login(email, password)
   }
-
-  if (password === "") {
-    setError("Password required")
-    return
-  }
-
-  setError("")
-  console.log("Login success")
-      
-  await AsyncStorage.setItem("isLoggedIn", "true")
-  onLogin()
-}
-
 
   return (
     <View style={styles.container}>
@@ -45,30 +41,28 @@ function LoginScreen({ onLogin }) {
 
       <TextInput
         placeholder="Enter password"
-          secureTextEntry
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
       />
 
       {error !== "" && (
         <Text style={styles.error}>{error}</Text>
       )}
 
-    <TouchableOpacity
-      style={styles.button}
-      onPress={handleLogin}
-      disabled={email === "" || password === ""}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleLogin}
       >
-      <Text style={styles.buttonText}>Login</Text>
-    </TouchableOpacity>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
 
     </View>
   )
 }
 
 export default LoginScreen
-
 
 const styles = StyleSheet.create({
 
@@ -107,9 +101,9 @@ const styles = StyleSheet.create({
   },
 
   error: {
-  color: "red",
-  textAlign: "center",
-  marginBottom: 10
-}
+    color: "red",
+    textAlign: "center",
+    marginBottom: 10
+  }
 
 })
